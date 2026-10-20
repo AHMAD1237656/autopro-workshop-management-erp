@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Open New Job Card{% endblock %}
+
+{% block content %}
+<div style="max-width: 760px; margin: 0 auto; background: var(--card-bg); padding: 30px; border-radius: 8px; border: 1px solid var(--border-color);">
+    <h2 style="margin-bottom: 20px;">Open Repair Job Card</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <h4 style="color: #60a5fa; margin-bottom: 12px;">1. Vehicle & Customer Profile</h4>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+            <div>
+                <label style="display: block; margin-bottom: 6px; color: var(--text-muted);">Plate Number</label>
+                <input type="text" name="registration_number" placeholder="LEA-8991" required style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid var(--border-color); color: #fff; border-radius: 6px;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 6px; color: var(--text-muted);">Customer Name</label>
+                <input type="text" name="customer_name" placeholder="Enter the customer's full name" required style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid var(--border-color); color: #fff; border-radius: 6px;">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+            <div>
+                <label style="display: block; margin-bottom: 6px; color: var(--text-muted);">Contact Phone</label>
+                <input type="text" name="customer_phone" placeholder="0300-XXXXXXX" required style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid var(--border-color); color: #fff; border-radius: 6px;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 6px; color: var(--text-muted);">Make & Model</label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" name="make" placeholder="Honda" required style="width: 50%; padding: 10px; background: #0f172a; border: 1px solid var(--border-color); color: #fff; border-radius: 6px;">
+                    <input type="text" name="model_name" placeholder="Civic" required style="width: 50%; padding: 10px; background: #0f172a; border: 1px solid var(--border-color); color: #fff; border-radius: 6px;">
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+            <div>
+                <label style="display: block; margin-bottom: 6px; color: var(--text-muted);">Year</label>
+                <input type="number" name="year" placeholder="2021" required style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid var(--border-color); color: #fff; border-radius: 6px;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 6px; color: var(--text-muted);">Mileage (KM)</label>
+                <input type="number" name="mileage" placeholder="54000" required style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid var(--border-color); color: #fff; border-radius: 6px;">
+            </div>
+        </div>
+
+        <h4 style="color: #60a5fa; margin-bottom: 12px; border-top: 1px solid var(--border-color); padding-top: 16px;">2. Inspection & Assignment</h4>
+        <div style="margin-bottom: 16px;">
+            <label style="display: block; margin-bottom: 6px; color: var(--text-muted);">Customer Complaint / Fault Notes</label>
+            <textarea name="complaint_description" rows="3" placeholder="Engine tuning, front brake squeal, engine oil replacement, AC cooling issue..." required style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid var(--border-color); color: #fff; border-radius: 6px;"></textarea>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+            <label style="display: block; margin-bottom: 6px; color: var(--text-muted);">Assign Mechanic Technician</label>
+            <select name="mechanic_id" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid var(--border-color); color: #fff; border-radius: 6px;">
+                <option value="">Select Mechanic (Optional)</option>
+                {% for m in mechanics %}
+                    <option value="{{ m.id }}">{{ m.username }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" style="width: 100%; padding: 12px; background: var(--accent); border: none; color: #fff; font-weight: 600; border-radius: 6px; cursor: pointer;">Open Repair Job Card</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AutoPro ERP{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <script>
+        try {
+            const savedTheme = localStorage.getItem('autopro-theme');
+            document.documentElement.dataset.theme = savedTheme === 'dark' ? 'dark' : 'light';
+        } catch (error) {
+            document.documentElement.dataset.theme = 'light';
+        }
+    </script>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="erp-wrapper">
+        {% include 'partials/sidebar.html' %}
+        <div class="mobile-scrim" id="mobileScrim" aria-hidden="true"></div>
+
+        <div class="main-content">
+            {% include 'partials/navbar.html' %}
+
+            <div class="content-body">
+                {% if messages %}
+                    <div class="message-stack" role="status" aria-live="polite">
+                        {% for message in messages %}
+                            <div class="message {{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+    {% block extra_js %}{% endblock %}
+    <script>
+        (() => {
+            const sidebar = document.querySelector('.sidebar');
+            const scrim = document.getElementById('mobileScrim');
+            const menuButton = document.getElementById('menuToggle');
+            const themeButton = document.getElementById('themeToggle');
+            const isMobile = () => window.matchMedia('(max-width: 760px)').matches;
+            const syncThemeButton = () => {
+                if (themeButton) {
+                    themeButton.textContent = document.documentElement.dataset.theme === 'dark' ? '☀ Light' : '☾ Dark';
+                }
+            };
+            syncThemeButton();
+
+            const closeDrawer = () => {
+                sidebar?.classList.remove('mobile-open');
+                scrim?.classList.remove('visible');
+                menuButton?.setAttribute('aria-expanded', 'false');
+                if (menuButton && isMobile()) menuButton.setAttribute('aria-label', 'Open navigation');
+            };
+            menuButton?.addEventListener('click', () => {
+                if (isMobile()) {
+                    const open = sidebar.classList.toggle('mobile-open');
+                    scrim.classList.toggle('visible', open);
+                    menuButton.setAttribute('aria-expanded', String(open));
+                    menuButton.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+                } else {
+                    const expanded = sidebar.classList.toggle('is-expanded');
+                    menuButton.setAttribute('aria-expanded', String(expanded));
+                    menuButton.setAttribute('aria-label', expanded ? 'Collapse navigation' : 'Expand navigation');
+                }
+            });
+            scrim?.addEventListener('click', closeDrawer);
+            document.addEventListener('keydown', event => {
+                if (event.key === 'Escape') closeDrawer();
+            });
+            window.addEventListener('resize', () => {
+                if (!isMobile()) closeDrawer();
+            });
+            themeButton?.addEventListener('click', () => {
+                const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+                document.documentElement.dataset.theme = nextTheme;
+                try {
+                    localStorage.setItem('autopro-theme', nextTheme);
+                } catch (error) {
+                    console.warn('The selected theme could not be saved in this browser.', error);
+                }
+                themeButton.setAttribute('aria-label', `Switch to ${nextTheme === 'dark' ? 'light' : 'dark'} theme`);
+                themeButton.textContent = nextTheme === 'dark' ? '☀ Light' : '☾ Dark';
+            });
+        })();
+    </script>
+</body>
+</html>

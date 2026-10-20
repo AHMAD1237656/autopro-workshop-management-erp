@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Vouchers{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div>
+        <h2>Payment Vouchers and Settlements</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">Record customer receipts, supplier disbursements, and bank transfers.</p>
+    </div>
+    <a href="{% url 'payment_create' %}" style="background: var(--accent); color: white; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; font-weight: 600;">+ Record Payment Voucher</a>
+</div>
+
+<div class="table-responsive">
+    <table>
+        <thead>
+            <tr>
+                <th>Voucher #</th>
+                <th>Date & Time</th>
+                <th>Account Title</th>
+                <th>Voucher Type</th>
+                <th>Mode</th>
+                <th>Reference Notes</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in vouchers %}
+            <tr>
+                <td><strong>{{ v.voucher_no }}</strong></td>
+                <td>{{ v.created_at|date:"d M Y, H:i" }}</td>
+                <td>{{ v.account.account_name }}</td>
+                <td>
+                    {% if v.voucher_type == 'RECEIPT' %}
+                        <span class="badge badge-success">Receipt (Inflow)</span>
+                    {% else %}
+                        <span class="badge badge-danger">Payment (Outflow)</span>
+                    {% endif %}
+                </td>
+                <td>{{ v.get_payment_mode_display }}</td>
+                <td>{{ v.reference_note }}</td>
+                <td><strong>Rs. {{ v.amount }}</strong></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 36px;">No payment vouchers recorded yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

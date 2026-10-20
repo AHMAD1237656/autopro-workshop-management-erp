@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Workshop Job Cards{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div>
+        <h2>Active Workshop Job Cards</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">Active vehicles under maintenance, assigned mechanics, and live job status.</p>
+    </div>
+    <a href="{% url 'job_card_create' %}" style="background: var(--accent); color: white; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; font-weight: 600;">+ Open Job Card</a>
+</div>
+
+<div class="table-responsive">
+    <table>
+        <thead>
+            <tr>
+                <th>Job # & Date</th>
+                <th>Vehicle & Owner</th>
+                <th>Issues Reported</th>
+                <th>Assigned Mechanic</th>
+                <th>Status</th>
+                <th>Total Charges</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in jobs %}
+            <tr>
+                <td>
+                    <strong>{{ job.job_number }}</strong><br>
+                    <small style="color: var(--text-muted);">{{ job.created_at|date:"d M Y, H:i" }}</small>
+                </td>
+                <td>
+                    <strong>{{ job.vehicle.registration_number }}</strong> ({{ job.vehicle.make }} {{ job.vehicle.model_name }})<br>
+                    <small style="color: var(--text-muted);">{{ job.vehicle.customer_name }} - {{ job.vehicle.customer_phone }}</small>
+                </td>
+                <td>{{ job.complaint_description|truncatechars:50 }}</td>
+                <td>{{ job.assigned_mechanic.username|default:"Unassigned" }}</td>
+                <td>
+                    {% if job.status == 'IN_PROGRESS' %}
+                        <span class="badge badge-warning">In Progress</span>
+                    {% elif job.status == 'COMPLETED' %}
+                        <span class="badge badge-success">Completed</span>
+                    {% else %}
+                        <span class="badge badge-pending">{{ job.get_status_display }}</span>
+                    {% endif %}
+                </td>
+                <td><strong>Rs. {{ job.total_cost }}</strong></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 36px;">No active job cards found. Click "+ Open Job Card" to check-in a vehicle.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

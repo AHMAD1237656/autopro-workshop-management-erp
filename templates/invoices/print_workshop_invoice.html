@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Workshop Invoice - {{ job.job_number }}</title>
+    <style>
+        body { font-family: sans-serif; background: #fff; color: #111; padding: 40px; max-width: 820px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #2563eb; padding-bottom: 18px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+        .table-responsive { overflow-x: auto; background: transparent; border: 0; border-radius: 0; }
+        th { background: #f1f5f9; padding: 10px; border-bottom: 1px solid #cbd5e1; text-align: left; }
+        td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
+        .text-right { text-align: right; }
+        .btn-print { background: #2563eb; color: #fff; padding: 10px 20px; border: none; cursor: pointer; border-radius: 4px; margin-bottom: 20px; font-weight: bold; }
+        @media print { .btn-print { display: none; } }
+    </style>
+</head>
+<body>
+    <button class="btn-print" onclick="window.print()">Print workshop invoice</button>
+    <div class="header">
+        <div>
+            {% if invoice_profile and invoice_profile.logo %}<img src="{{ invoice_profile.logo.url }}" alt="Business logo" style="max-width: 120px; max-height: 70px; object-fit: contain;">{% endif %}
+            <h1 style="margin: 0; color: #2563eb;">{{ invoice_profile.legal_title|default:"AutoPro ERP" }}</h1>
+            {% if invoice_profile.contact_numbers %}<p style="color: #64748b; margin: 4px 0;">{{ invoice_profile.contact_numbers }}</p>{% endif %}
+            {% if invoice_profile.tax_id %}<p style="color: #64748b; margin: 4px 0;">Tax ID: {{ invoice_profile.tax_id }}</p>{% endif %}
+            {% if invoice_profile.physical_address %}<p style="color: #64748b; margin: 4px 0;">{{ invoice_profile.physical_address }}</p>{% endif %}
+        </div>
+        <div style="text-align: right;">
+            <h3 style="margin: 0;">WORKSHOP SERVICE INVOICE</h3>
+            <p style="margin: 4px 0;">Job #: <strong>{{ job.job_number }}</strong><br>Date: {{ job.created_at|date:"d M Y" }}</p>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 24px; background: #f8fafc; padding: 16px; border-radius: 6px;">
+        <div>
+            <h4 style="margin: 0 0 8px 0; color: #1e293b;">Vehicle Information</h4>
+            <strong>Registration Plate:</strong> {{ job.vehicle.registration_number }}<br>
+            <strong>Vehicle Details:</strong> {{ job.vehicle.make }} {{ job.vehicle.model_name }} ({{ job.vehicle.year }})<br>
+            <strong>Current Odometer:</strong> {{ job.vehicle.mileage }} KM
+        </div>
+        <div>
+            <h4 style="margin: 0 0 8px 0; color: #1e293b;">Customer & Technician</h4>
+            <strong>Customer Name:</strong> {{ job.vehicle.customer_name }}<br>
+            <strong>Contact Phone:</strong> {{ job.vehicle.customer_phone }}<br>
+            <strong>Assigned Mechanic:</strong> {{ job.assigned_mechanic.username|default:"General Workshop Team" }}
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Service / Spare Parts Replaced</th>
+                    <th style="text-align: center;">Quantity</th>
+                    <th class="text-right">Unit rate</th>
+                    <th class="text-right">Total amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in parts %}
+                <tr>
+                    <td>{{ item.part.name }} (OEM: {{ item.part.part_number }})</td>
+                    <td style="text-align: center;">{{ item.quantity }}</td>
+                    <td class="text-right">Rs. {{ item.unit_price }}</td>
+                    <td class="text-right">Rs. {{ item.total_price }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align: center; color: #64748b; padding: 18px;">No spare parts have been billed for this job card.</td></tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="3"><strong>Labour and workshop service charges</strong></td>
+                    <td class="text-right"><strong>Rs. {{ job.labor_charges }}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top: 28px; text-align: right;">
+        <h2 style="color: #2563eb; margin: 0;">Total Amount: Rs. {{ job.total_cost }}</h2>
+        <p style="color: #64748b; font-size: 0.9rem; margin-top: 4px;">Status: {{ job.get_status_display }}</p>
+    </div>
+    {% if invoice_profile.footer_terms %}<p style="margin-top: 28px; color: #64748b; text-align: center; white-space: pre-line;">{{ invoice_profile.footer_terms }}</p>{% endif %}
+</body>
+</html>

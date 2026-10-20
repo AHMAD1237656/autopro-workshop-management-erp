@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Operating Expenses | AutoPro ERP{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <div>
+        <h1>Operating Expenses</h1>
+        <p>Record and reconcile operating costs through balanced debit and credit ledger entries.</p>
+    </div>
+    <div class="expense-actions">
+        <a class="btn btn-secondary" href="{% url 'reports' %}?export=expenses">Download expense report CSV</a>
+        <a class="btn" href="{% url 'expense_create' %}">Record expense</a>
+    </div>
+</section>
+
+<section class="stat-grid" aria-label="Operating expense summary">
+    <article class="stat-card">
+        <div class="stat-label">Recorded expenses</div>
+        <div class="stat-value">Rs. {{ expense_total|floatformat:2 }}</div>
+        <div class="muted">All recorded operating expenses</div>
+    </article>
+</section>
+
+<section class="panel">
+    <div class="table-responsive">
+        <table>
+            <thead><tr><th>Expense date</th><th>Reference</th><th>Description</th><th>Expense account</th><th>Paid from</th><th>Recorded by</th><th>Amount</th></tr></thead>
+            <tbody>
+                {% for expense in expenses %}
+                <tr>
+                    <td>{{ expense.expense_date|date:"d M Y" }}</td>
+                    <td>{{ expense.reference_no }}</td>
+                    <td>{{ expense.description }}</td>
+                    <td>{{ expense.expense_account.account_name }}</td>
+                    <td>{{ expense.payment_account.account_name }}</td>
+                    <td>{{ expense.recorded_by.get_full_name|default:expense.recorded_by.username|default:"System" }}</td>
+                    <td><strong>Rs. {{ expense.amount|floatformat:2 }}</strong></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="empty-state">No operating expenses have been recorded.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .expense-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    @media (max-width: 760px) { .expense-actions { width: 100%; } .expense-actions .btn { flex: 1; } }
+</style>
+{% endblock %}

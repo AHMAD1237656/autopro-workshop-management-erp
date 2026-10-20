@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Supplier Purchase Orders{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div>
+        <h2>Supplier Purchases and Stock Receiving</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">Track bulk inventory replenishment from parts manufacturers and distributors.</p>
+    </div>
+    <a href="{% url 'purchase_create' %}" style="background: var(--accent); color: white; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; font-weight: 600;">+ New Purchase Order</a>
+</div>
+
+<div class="table-responsive">
+    <table>
+        <thead>
+            <tr>
+                <th>PO Number & Date</th>
+                <th>Supplier Company</th>
+                <th>Parts Received</th>
+                <th>Total Bill</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for o in orders %}
+            <tr>
+                <td><strong>{{ o.po_number }}</strong><br><small style="color: var(--text-muted);">{{ o.created_at|date:"d M Y, H:i" }}</small></td>
+                <td>{{ o.supplier.company_name }}<br><small style="color: var(--text-muted);">Contact: {{ o.supplier.phone }}</small></td>
+                <td>
+                    {% for item in o.items.all %}
+                        <span>• {{ item.part.name }} (x{{ item.quantity }}) @ Rs. {{ item.cost_price }}</span><br>
+                    {% endfor %}
+                </td>
+                <td><strong>Rs. {{ o.total_amount }}</strong></td>
+                <td><span class="badge badge-success">{{ o.get_status_display }}</span></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 36px;">No supplier purchase orders recorded yet. Click "+ New Purchase Order" to replenish stock.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

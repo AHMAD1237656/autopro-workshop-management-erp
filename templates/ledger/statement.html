@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Account Statement | {{ account.account_name }}{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <div>
+        <h1>{{ account.account_name }}</h1>
+        <p>{{ account.get_account_type_display }} · Current balance: <strong>Rs. {{ account.current_balance|floatformat:2 }}</strong></p>
+    </div>
+    <div class="statement-actions">
+        <a class="btn btn-secondary" href="{% url 'account_list' %}">Back to ledgers</a>
+        <a class="btn btn-secondary" href="/reports/?export=ledger&amp;account_id={{ account.pk }}">Download CSV</a>
+        <button class="btn" type="button" onclick="window.print()">Print or save as PDF</button>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr><th>Date and time</th><th>Reference / invoice</th><th>Remarks</th><th>Debit (+)</th><th>Credit (-)</th><th>Running balance</th></tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                <tr>
+                    <td>{{ entry.created_at|date:"d M Y, H:i" }}</td>
+                    <td>{{ entry.reference_no }}</td>
+                    <td>{{ entry.description }}</td>
+                    <td>{% if entry.transaction_type == 'DEBIT' %}Rs. {{ entry.amount|floatformat:2 }}{% else %}—{% endif %}</td>
+                    <td>{% if entry.transaction_type == 'CREDIT' %}Rs. {{ entry.amount|floatformat:2 }}{% else %}—{% endif %}</td>
+                    <td><strong>Rs. {{ entry.balance_after_transaction|floatformat:2 }}</strong></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="empty-state">No transactions have been recorded for this account.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .statement-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    @media print {
+        .sidebar, .navbar, .statement-actions { display: none !important; }
+        .erp-wrapper, .main-content { display: block; }
+        .content-body { max-width: none; padding: 0; }
+        .panel { box-shadow: none; }
+        body { color: #111827; background: #fff; }
+    }
+    @media (max-width: 760px) { .statement-actions { width: 100%; } .statement-actions .btn { flex: 1; } }
+</style>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Party Ledgers | AutoPro ERP{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <div>
+        <h1>Party Ledgers</h1>
+        <p>Review customer receivables, supplier payables, and account statements.</p>
+    </div>
+    <div class="ledger-header-actions">
+        <a class="btn btn-secondary" href="{% url 'expense_list' %}">Operating expenses</a>
+        <a class="btn" href="{% url 'account_create' %}">Create account</a>
+    </div>
+</section>
+
+<section class="stat-grid" aria-label="Party balance summary">
+    <article class="stat-card">
+        <div class="stat-label">Customer receivables</div>
+        <div class="stat-value">Rs. {{ receivables|floatformat:2 }}</div>
+        <div class="muted">Positive customer account balances</div>
+    </article>
+    <article class="stat-card">
+        <div class="stat-label">Supplier payables</div>
+        <div class="stat-value">Rs. {{ payables|floatformat:2 }}</div>
+        <div class="muted">Credit balances owed to suppliers</div>
+    </article>
+</section>
+
+<section class="panel">
+    <div class="panel-body">
+        <form method="get" class="ledger-filter">
+            <label class="sr-only" for="ledgerSearch">Search accounts</label>
+            <input id="ledgerSearch" type="search" name="q" value="{{ search_query }}" placeholder="Search by party or account name">
+            <label class="sr-only" for="accountType">Filter by account type</label>
+            <select id="accountType" name="type">
+                <option value="">All account types</option>
+                <option value="CUSTOMER" {% if selected_type == 'CUSTOMER' %}selected{% endif %}>Customer</option>
+                <option value="SUPPLIER" {% if selected_type == 'SUPPLIER' %}selected{% endif %}>Supplier</option>
+                <option value="BANK" {% if selected_type == 'BANK' %}selected{% endif %}>Bank</option>
+                <option value="CASH" {% if selected_type == 'CASH' %}selected{% endif %}>Cash</option>
+                <option value="EXPENSE" {% if selected_type == 'EXPENSE' %}selected{% endif %}>Operating expense</option>
+            </select>
+            <button class="btn" type="submit">Apply filters</button>
+            {% if search_query or selected_type %}<a class="btn btn-secondary" href="{% url 'account_list' %}">Clear</a>{% endif %}
+        </form>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead><tr><th>Account name</th><th>Account type</th><th>Contact number</th><th>Current balance</th><th>Statement</th></tr></thead>
+            <tbody>
+                {% for account in accounts %}
+                <tr>
+                    <td><strong>{{ account.account_name }}</strong></td>
+                    <td>{{ account.get_account_type_display }}</td>
+                    <td>{{ account.contact_phone|default:"Not provided" }}</td>
+                    <td><strong>Rs. {{ account.current_balance|floatformat:2 }}</strong></td>
+                    <td><a class="btn btn-secondary" href="{% url 'account_statement' account_id=account.id %}">View statement</a></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="empty-state">No accounts match the selected filters.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ledger-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+    .ledger-header-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ledger-filter input { flex: 1 1 230px; }
+    .ledger-filter select { flex: 0 1 200px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+    @media (max-width: 600px) { .ledger-header-actions { width: 100%; } .ledger-header-actions .btn { flex: 1; } }
+</style>
+{% endblock %}

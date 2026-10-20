@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice {{ sale.sale_invoice_no }} | AutoPro ERP</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { width: 80mm; max-width: 100%; margin: 0 auto; padding: 5mm; color: #111827; background: #fff; font-family: "Segoe UI", Arial, sans-serif; font-size: 12px; }
+        body.invoice-a4 { width: auto; max-width: 760px; padding: 28px; font-size: 14px; }
+        .invoice-header { text-align: center; }
+        .invoice-header.placement-left { text-align: left; }
+        .invoice-header.placement-right { text-align: right; }
+        .invoice-logo { display: block; max-width: 120px; max-height: 70px; margin: 0 auto 8px; object-fit: contain; }
+        .placement-left .invoice-logo { margin-left: 0; }
+        .placement-right .invoice-logo { margin-right: 0; }
+        h1 { margin: 2px 0; font-size: 1.45em; }
+        .business-details { margin: 5px 0 12px; white-space: pre-line; }
+        .invoice-meta { margin: 12px 0; }
+        .invoice-meta p { margin: 3px 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { padding: 6px 2px; border-bottom: 1px dashed #94a3b8; text-align: right; vertical-align: top; }
+        th:first-child, td:first-child { text-align: left; }
+        .center { text-align: center; }
+        .totals { margin-top: 12px; }
+        .total-line { display: flex; justify-content: space-between; gap: 12px; margin: 6px 0; }
+        .grand-total { padding-top: 8px; border-top: 1px dashed #64748b; font-size: 1.18em; font-weight: 750; }
+        .invoice-footer { margin-top: 22px; text-align: center; white-space: pre-line; }
+        .invoice-table-responsive { overflow-x: auto; background: transparent; border: 0; border-radius: 0; }
+        .invoice-table-responsive th, .invoice-table-responsive td { color: #111827; background: #fff; }
+        .print-button { margin-bottom: 14px; padding: 8px 12px; color: #fff; background: #1d4ed8; border: 0; border-radius: 5px; cursor: pointer; }
+        @media print {
+            .print-button { display: none; }
+            body { width: 80mm; max-width: none; margin: 0; padding: 2mm; }
+            body.invoice-a4 { width: auto; padding: 0; }
+        }
+    </style>
+</head>
+<body class="{% if invoice_profile.layout == 'A4' %}invoice-a4{% else %}invoice-receipt{% endif %}">
+    <button class="print-button" type="button" onclick="window.print()">Print or save invoice as PDF</button>
+    <header class="invoice-header placement-{% if invoice_profile %}{{ invoice_profile.logo_placement|lower }}{% else %}center{% endif %}">
+        {% if invoice_profile and invoice_profile.logo %}
+            <img class="invoice-logo" src="{{ invoice_profile.logo.url }}" alt="Business logo">
+        {% endif %}
+        <h1>{{ invoice_profile.legal_title|default:"AutoPro ERP" }}</h1>
+        {% if invoice_profile.contact_numbers %}<p class="business-details">{{ invoice_profile.contact_numbers }}</p>{% endif %}
+        {% if invoice_profile.tax_id %}<p class="business-details">Tax ID: {{ invoice_profile.tax_id }}</p>{% endif %}
+        {% if invoice_profile.physical_address %}<p class="business-details">{{ invoice_profile.physical_address }}</p>{% endif %}
+    </header>
+    <hr>
+    <div class="invoice-meta">
+        <p><strong>Invoice:</strong> {{ sale.sale_invoice_no }}</p>
+        <p><strong>Date:</strong> {{ sale.created_at|date:"d M Y, H:i" }}</p>
+        <p><strong>Customer:</strong> {{ sale.customer_name }}</p>
+        <p><strong>Phone:</strong> {{ sale.customer_phone|default:"Not provided" }}</p>
+        <p><strong>Payment method:</strong> {{ sale.get_payment_method_display }}</p>
+    </div>
+    <div class="table-responsive invoice-table-responsive">
+        <table>
+            <thead><tr><th>Item</th><th>Qty</th><th>Rate</th><th>Total</th></tr></thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.part.name }}</td>
+                    <td class="center">{{ item.quantity }}</td>
+                    <td>{{ item.unit_price|floatformat:2 }}</td>
+                    <td>{{ item.line_total|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="totals">
+        <div class="total-line"><span>Subtotal</span><span>Rs. {{ sale.subtotal|floatformat:2 }}</span></div>
+        <div class="total-line"><span>Discount</span><span>Rs. {{ sale.discount|floatformat:2 }}</span></div>
+        <div class="total-line grand-total"><span>Total due</span><span>Rs. {{ sale.final_total|floatformat:2 }}</span></div>
+    </div>
+    <footer class="invoice-footer">
+        {% if invoice_profile.footer_terms %}{{ invoice_profile.footer_terms }}{% else %}Thank you for your business.{% endif %}
+    </footer>
+    {% if auto_print %}
+    <script>
+        window.addEventListener('load', () => window.print());
+    </script>
+    {% endif %}
+</body>
+</html>

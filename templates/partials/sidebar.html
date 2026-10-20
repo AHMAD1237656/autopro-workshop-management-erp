@@ -1,0 +1,78 @@
+<aside class="sidebar" aria-label="Main navigation">
+    <div class="sidebar-header">
+        <span class="brand-mark" aria-hidden="true">A</span>
+        <span class="brand-name">AutoPro ERP</span>
+    </div>
+    <ul class="sidebar-menu">
+        <li class="{% if request.path == '/' or request.path|slice:':11' == '/dashboard/' %}active{% endif %}">
+            <a href="{% url 'dashboard_home' %}" data-label="Dashboard" aria-label="Dashboard">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="11" width="7" height="10" rx="1"/><rect x="3" y="14" width="8" height="7" rx="1"/></svg></span><span class="nav-label">Dashboard</span>
+            </a>
+        </li>
+        <li class="{% if request.path|slice:':13' == '/roles/matrix' %}active{% endif %}">
+            <a href="{% url 'role_matrix' %}" data-label="Role Matrix" aria-label="Role Matrix">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="nav-label">Role Matrix</span>
+            </a>
+        </li>
+        <li class="{% if request.path|slice:':9' == '/workshop' %}active{% endif %}">
+            <a href="/workshop/jobs/" data-label="Workshop Jobs" aria-label="Workshop Jobs">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a5 5 0 0 0-6.6 6.6L3 18l3 3 5.1-5.1a5 5 0 0 0 6.6-6.6L14 13l-3-3z"/></svg></span><span class="nav-label">Workshop Jobs</span>
+            </a>
+        </li>
+        <li class="{% if request.path|slice:':10' == '/inventory' %}active{% endif %}">
+            <a href="/inventory/parts/" data-label="Spare Parts Inventory" aria-label="Spare Parts Inventory">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></svg></span><span class="nav-label">Spare Parts Inventory</span>
+            </a>
+        </li>
+        <li class="{% if request.path|slice:':9' == '/showroom' %}active{% endif %}">
+            <a href="/showroom/" data-label="Showroom Vehicles" aria-label="Showroom Vehicles">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 11 1.5-5h11L19 11"/><path d="M3 11h18v8H3zM6 19v2m12-2v2M6 15h.01M18 15h.01"/></svg></span><span class="nav-label">Showroom Vehicles</span>
+            </a>
+        </li>
+        <li class="{% if request.path|slice:':10' == '/sales/pos' %}active{% endif %}">
+            <a href="/sales/pos/" data-label="POS Counter" aria-label="POS Counter">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 4h2l2.4 11.4a2 2 0 0 0 2 1.6h8.8a2 2 0 0 0 2-1.6L22 8H6"/><circle cx="10" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg></span><span class="nav-label">POS Counter</span>
+            </a>
+        </li>
+        <li class="{% if request.path|slice:':15' == '/sales/history/' or request.path|slice:':10' == '/invoices/' and request.path|slice:':18' != '/invoices/settings' %}active{% endif %}">
+            <a href="/sales/history/" data-label="Invoices" aria-label="Invoices">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16l4-2 4 2 4-2 4 2V8z"/><path d="M14 2v6h6M8 13h8M8 16h8"/></svg></span><span class="nav-label">Invoices</span>
+            </a>
+        </li>
+        <li class="{% if request.path|slice:':18' == '/invoices/settings' %}active{% endif %}">
+            <a href="{% url 'invoice_settings' %}" data-label="Invoice Settings" aria-label="Invoice Settings">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM8 8h8M8 12h8M8 16h5"/></svg></span><span class="nav-label">Invoice Settings</span>
+            </a>
+        </li>
+        <li class="{% if request.path|slice:':11' == '/purchases/' %}active{% endif %}">
+            <a href="/purchases/" data-label="Purchases" aria-label="Purchases">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h16l-1 13H5zM9 7a3 3 0 0 1 6 0"/></svg></span><span class="nav-label">Purchases</span>
+            </a>
+        </li>
+        <li class="{% if request.path|slice:':7' == '/ledger' %}active{% endif %}">
+            <a href="/ledger/" data-label="Party Ledgers" aria-label="Party Ledgers">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM8 8h8M8 12h8M8 16h4"/></svg></span><span class="nav-label">Party Ledgers</span>
+            </a>
+        </li>
+        <li class="{% if request.path|slice:':16' == '/ledger/expenses' %}active{% endif %}">
+            <a href="{% url 'expense_list' %}" data-label="Operating Expenses" aria-label="Operating Expenses">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="nav-label">Operating Expenses</span>
+            </a>
+        </li>
+        <li class="{% if request.path|slice:':9' == '/payments' %}active{% endif %}">
+            <a href="/payments/" data-label="Payment Vouchers" aria-label="Payment Vouchers">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/></svg></span><span class="nav-label">Payment Vouchers</span>
+            </a>
+        </li>
+        <li class="{% if request.path|slice:':9' == '/reports/' %}active{% endif %}">
+            <a href="/reports/" data-label="Reports and Analytics" aria-label="Reports and Analytics">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M8 16v-5m5 5V6m5 10v-8"/></svg></span><span class="nav-label">Reports and Analytics</span>
+            </a>
+        </li>
+        <li class="{% if request.path|slice:':11' == '/audit-log/' %}active{% endif %}">
+            <a href="/audit-log/" data-label="Audit Trail" aria-label="Audit Trail">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v5c0 5 3.4 8.5 8 10 4.6-1.5 8-5 8-10V6z"/><path d="m9 12 2 2 4-4"/></svg></span><span class="nav-label">Audit Trail</span>
+            </a>
+        </li>
+    </ul>
+</aside>

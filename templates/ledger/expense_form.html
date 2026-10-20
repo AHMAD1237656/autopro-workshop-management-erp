@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Record Operating Expense | AutoPro ERP{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <div>
+        <h1>Record operating expense</h1>
+        <p>Post the expense as a debit and the cash or bank payment as a credit.</p>
+    </div>
+</section>
+
+<section class="panel expense-form-panel">
+    <div class="panel-body">
+        {% if not expense_accounts %}
+            <div class="message error" role="alert">Create an operating expense account before recording an expense.</div>
+        {% endif %}
+        {% if not payment_accounts %}
+            <div class="message error" role="alert">Create a cash or bank account before recording an expense.</div>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="expenseDate">Expense date</label>
+                    <input id="expenseDate" type="date" name="expense_date" value="{{ today|date:'Y-m-d' }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="expenseReference">Reference number</label>
+                    <input id="expenseReference" type="text" name="reference_no" maxlength="80" required>
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="expenseAccount">Expense account</label>
+                    <select id="expenseAccount" name="expense_account" required>
+                        <option value="">Select an expense account</option>
+                        {% for account in expense_accounts %}
+                            <option value="{{ account.pk }}">{{ account.account_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="paymentAccount">Paid from</label>
+                    <select id="paymentAccount" name="payment_account" required>
+                        <option value="">Select a cash or bank account</option>
+                        {% for account in payment_accounts %}
+                            <option value="{{ account.pk }}">{{ account.account_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="expenseAmount">Amount (Rs.)</label>
+                    <input id="expenseAmount" type="number" name="amount" min="0.01" step="0.01" inputmode="decimal" required>
+                </div>
+                <div class="form-group">
+                    <label for="expenseDescription">Description</label>
+                    <input id="expenseDescription" type="text" name="description" maxlength="255" required>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn" type="submit" {% if not expense_accounts or not payment_accounts %}disabled{% endif %}>Save and post expense</button>
+                <a class="btn btn-secondary" href="{% url 'expense_list' %}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .expense-form-panel { max-width: 900px; }
+    .form-actions { display: flex; flex-wrap: wrap; gap: 9px; }
+</style>
+{% endblock %}

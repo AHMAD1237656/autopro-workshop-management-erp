@@ -1,0 +1,384 @@
+{% extends 'base.html' %}
+
+{% block title %}Executive Dashboard | AutoPro ERP{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <div>
+        <h1>Executive Dashboard</h1>
+        <p>Business activity and operational performance for {{ today|date:"d M Y" }}.</p>
+    </div>
+    <form method="get" class="range-filter">
+        <label for="rangeSelect">Analytics period</label>
+        <select id="rangeSelect" name="range" onchange="this.form.submit()">
+            <option value="7" {% if selected_range == '7' %}selected{% endif %}>Last 7 days</option>
+            <option value="30" {% if selected_range == '30' %}selected{% endif %}>Last 30 days</option>
+            <option value="90" {% if selected_range == '90' %}selected{% endif %}>Last 90 days</option>
+        </select>
+    </form>
+</section>
+
+<section class="stat-grid dashboard-stat-grid" aria-label="Business overview">
+    <article class="stat-card dashboard-stat-card dashboard-stat-card--revenue">
+        <span class="stat-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"></rect><path d="M3 10h18M7 15h3"></path><path d="M16 3v3"></path></svg>
+        </span>
+        <div class="stat-label">Total Revenue Today</div>
+        <div class="stat-value">Rs. {{ revenue_today|floatformat:2 }}</div>
+        <div class="muted">POS sales and workshop charges</div>
+    </article>
+    <article class="stat-card dashboard-stat-card dashboard-stat-card--jobs">
+        <span class="stat-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a5 5 0 0 0-6.4 6.4L3 18l3 3 5.3-5.3a5 5 0 0 0 6.4-6.4L14 13l-3-3 3.7-3.7Z"></path></svg>
+        </span>
+        <div class="stat-label">Active Workshop Jobs</div>
+        <div class="stat-value">{{ active_jobs_count }}</div>
+        <div class="muted">Pending or in progress</div>
+    </article>
+    <article class="stat-card dashboard-stat-card dashboard-stat-card--transactions">
+        <span class="stat-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h8.9a2 2 0 0 0 2-1.6L22 8H6"></path><circle cx="10" cy="20" r="1"></circle><circle cx="18" cy="20" r="1"></circle></svg>
+        </span>
+        <div class="stat-label">POS Transactions</div>
+        <div class="stat-value">{{ period_transactions }}</div>
+        <div class="muted">Recorded during the selected period</div>
+    </article>
+    <article class="stat-card dashboard-stat-card dashboard-stat-card--stock">
+        <span class="stat-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m10.3 3.9-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3.1l-8-14a2 2 0 0 0-3.4 0Z"></path><path d="M12 9v4m0 4h.01"></path></svg>
+        </span>
+        <div class="stat-label">Low Stock Parts</div>
+        <div class="stat-value">{{ low_stock_count }}</div>
+        <div class="muted">At or below the reorder threshold</div>
+    </article>
+    <article class="stat-card dashboard-stat-card dashboard-stat-card--vehicles">
+        <span class="stat-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 11 1.5-4.5A2 2 0 0 1 8.4 5h7.2a2 2 0 0 1 1.9 1.5L19 11l2 2v5h-2"></path><path d="M5 18H3v-5l2-2m0 0h14M7 18h10"></path><circle cx="7" cy="16" r="1.5"></circle><circle cx="17" cy="16" r="1.5"></circle></svg>
+        </span>
+        <div class="stat-label">Available Showroom Vehicles</div>
+        <div class="stat-value">{{ available_vehicles_count }}</div>
+        <div class="muted">Currently available for sale</div>
+    </article>
+</section>
+
+<section class="panel" aria-labelledby="profitLossHeading">
+    <div class="panel-heading">
+        <div>
+            <h2 id="profitLossHeading">Profit and Loss Summary</h2>
+            <p class="muted">Last {{ range_days }} days, through {{ today|date:"d M Y" }}.</p>
+        </div>
+        <a href="{% url 'expense_list' %}">Manage operating expenses</a>
+    </div>
+    <div class="stat-grid dashboard-stat-grid pnl-grid">
+        <article class="stat-card dashboard-stat-card dashboard-stat-card--revenue">
+            <span class="stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"></rect><path d="M3 10h18M7 15h3"></path><path d="M16 3v3"></path></svg>
+            </span>
+            <div class="stat-label">Total revenue</div>
+            <div class="stat-value">Rs. {{ period_revenue|floatformat:2 }}</div>
+            <div class="muted">POS sales and completed workshop jobs</div>
+        </article>
+        <article class="stat-card dashboard-stat-card dashboard-stat-card--stock">
+            <span class="stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m10.3 3.9-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3.1l-8-14a2 2 0 0 0-3.4 0Z"></path><path d="M12 9v4m0 4h.01"></path></svg>
+            </span>
+            <div class="stat-label">Cost of goods sold</div>
+            <div class="stat-value">Rs. {{ period_cogs|floatformat:2 }}</div>
+            <div class="muted">Parts used in sales and completed workshop jobs</div>
+        </article>
+        <article class="stat-card dashboard-stat-card dashboard-stat-card--jobs">
+            <span class="stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a5 5 0 0 0-6.4 6.4L3 18l3 3 5.3-5.3a5 5 0 0 0 6.4-6.4L14 13l-3-3 3.7-3.7Z"></path></svg>
+            </span>
+            <div class="stat-label">Gross profit</div>
+            <div class="stat-value">Rs. {{ period_gross_profit|floatformat:2 }}</div>
+            <div class="muted">Revenue less cost of goods sold</div>
+        </article>
+        <article class="stat-card dashboard-stat-card dashboard-stat-card--transactions">
+            <span class="stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18m5-14.5A4 4 0 0 0 13 4h-2a4 4 0 0 0 0 8h2a4 4 0 0 1 0 8h-2a4 4 0 0 1-4-2.5"></path></svg>
+            </span>
+            <div class="stat-label">Operating expenses</div>
+            <div class="stat-value">Rs. {{ period_expenses|floatformat:2 }}</div>
+            <div class="muted">Expenses recorded for the selected period</div>
+        </article>
+        <article class="stat-card dashboard-stat-card dashboard-stat-card--vehicles">
+            <span class="stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 11 1.5-4.5A2 2 0 0 1 8.4 5h7.2a2 2 0 0 1 1.9 1.5L19 11l2 2v5h-2"></path><path d="M5 18H3v-5l2-2m0 0h14M7 18h10"></path><circle cx="7" cy="16" r="1.5"></circle><circle cx="17" cy="16" r="1.5"></circle></svg>
+            </span>
+            <div class="stat-label">Operating profit</div>
+            <div class="stat-value">Rs. {{ period_operating_profit|floatformat:2 }}</div>
+            <div class="muted">Gross profit less recorded operating expenses</div>
+        </article>
+    </div>
+    <div class="table-note">Historical part costs without a saved cost snapshot use the current inventory cost. Reconcile these estimates before relying on historical statements.</div>
+</section>
+
+<section class="panel" aria-labelledby="trendHeading">
+    <div class="panel-heading">
+        <div>
+            <h2 id="trendHeading">Revenue and operating profit trends</h2>
+            <p class="muted">POS sales and completed workshop revenue for the last {{ range_days }} days.</p>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="chart-legend" aria-hidden="true">
+            <span><i class="legend-sales"></i>POS sales</span>
+            <span><i class="legend-workshop"></i>Workshop revenue</span>
+            <span><i class="legend-profit"></i>Operating profit</span>
+        </div>
+        <div class="chart-container chart-container--revenue">
+            <canvas id="revenueChart" style="height: 280px; width: 100%;" role="img" aria-label="Daily POS sales, workshop revenue, and operating profit"></canvas>
+        </div>
+        <h3 class="volume-heading">POS transactions by day</h3>
+        <div class="chart-container chart-container--transactions">
+            <canvas id="transactionsChart" style="height: 220px; width: 100%;" role="img" aria-label="Daily number of POS transactions"></canvas>
+        </div>
+        <p class="muted chart-note">Operating profit is calculated as revenue less cost of goods sold and recorded operating expenses.</p>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-heading">
+        <h2>Recent Active Workshop Jobs</h2>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Job Number</th>
+                    <th>Vehicle</th>
+                    <th>Customer</th>
+                    <th>Assigned Mechanic</th>
+                    <th>Status</th>
+                    <th>Opened</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in recent_jobs %}
+                <tr>
+                    <td><strong>{{ job.job_number }}</strong></td>
+                    <td>{{ job.vehicle.registration_number }}<br><small class="muted">{{ job.vehicle.make }} {{ job.vehicle.model_name }}</small></td>
+                    <td>{{ job.vehicle.customer_name }}</td>
+                    <td>{{ job.assigned_mechanic.get_full_name|default:job.assigned_mechanic.username|default:"Unassigned" }}</td>
+                    <td>
+                        {% if job.status == 'IN_PROGRESS' %}
+                            <span class="badge badge-warning">{{ job.get_status_display }}</span>
+                        {% else %}
+                            <span class="badge badge-success">{{ job.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ job.created_at|date:"d M Y, H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="empty-state">There are no pending or in-progress workshop jobs.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-heading">
+        <h2>Low-Stock Inventory Alerts</h2>
+        <a href="/inventory/parts/">View inventory</a>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead><tr><th>Part</th><th>SKU</th><th>Category</th><th>Available quantity</th><th>Reorder level</th></tr></thead>
+            <tbody>
+                {% for part in low_stock_parts %}
+                <tr>
+                    <td><strong>{{ part.name }}</strong></td>
+                    <td>{{ part.part_number }}</td>
+                    <td>{{ part.category.name }}</td>
+                    <td><span class="badge badge-danger">{{ part.stock_quantity }}</span></td>
+                    <td>{{ part.min_stock_alert }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="empty-state">No parts are at or below their reorder threshold.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-heading">
+        <h2>Recent POS Sales</h2>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Receipt Number</th>
+                    <th>Date and Time</th>
+                    <th>Customer</th>
+                    <th>Cashier</th>
+                    <th>Payment Method</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sale in recent_sales %}
+                <tr>
+                    <td><strong>{{ sale.sale_invoice_no }}</strong></td>
+                    <td>{{ sale.created_at|date:"d M Y, H:i" }}</td>
+                    <td>{{ sale.customer_name }}</td>
+                    <td>{{ sale.cashier.get_full_name|default:sale.cashier.username|default:"Unassigned" }}</td>
+                    <td>{{ sale.get_payment_method_display }}</td>
+                    <td><strong>Rs. {{ sale.final_total|floatformat:2 }}</strong></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="empty-state">No POS sales have been recorded.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .range-filter { display: flex; align-items: center; gap: 10px; }
+    .range-filter label { color: var(--text-muted); font-size: .84rem; font-weight: 600; }
+    .range-filter select { min-width: 145px; }
+    .pnl-grid { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); margin: 0; padding: 16px; }
+    .chart-legend { display: flex; flex-wrap: wrap; gap: 16px; margin: 0 0 10px; color: var(--text-muted); font-size: .82rem; }
+    .chart-legend span { display: inline-flex; align-items: center; gap: 7px; }
+    .chart-legend i { width: 10px; height: 10px; border-radius: 50%; }
+    .legend-sales { background: #1d4ed8; }
+    .legend-workshop { background: #047857; }
+    .legend-profit { background: #7c3aed; }
+    .chart-container { position: relative; width: 100%; }
+    .chart-container--revenue { height: 280px; }
+    .chart-container--transactions { height: 220px; }
+    .chart-container canvas { display: block; width: 100% !important; height: 100% !important; }
+    .volume-heading { margin: 22px 0 6px; font-size: .95rem; }
+    .chart-note { margin-top: 10px; font-size: .8rem; }
+    @media (max-width: 600px) { .range-filter { width: 100%; } .range-filter select { flex: 1; } }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+{{ daily_series_json|json_script:"daily-series-data" }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+<script>
+(() => {
+    const dataElement = document.getElementById('daily-series-data');
+    const revenueCanvas = document.getElementById('revenueChart');
+    const transactionsCanvas = document.getElementById('transactionsChart');
+    if (!dataElement || !revenueCanvas || !transactionsCanvas) return;
+    if (typeof Chart === 'undefined') {
+        console.error('The dashboard charts could not load because Chart.js is unavailable.');
+        return;
+    }
+
+    let rawDays;
+    try {
+        rawDays = JSON.parse(dataElement.textContent);
+    } catch (error) {
+        console.error('The dashboard chart data is not valid JSON.', error);
+        return;
+    }
+    const days = Array.isArray(rawDays) && rawDays.length
+        ? rawDays
+        : Array.from({ length: 7 }, (_, index) => ({
+            date: `Day ${index + 1}`,
+            sales: 0,
+            workshop_revenue: 0,
+            operating_profit: 0,
+            transactions: 0
+        }));
+    const numericValue = (day, key) => {
+        const value = Number(day[key]);
+        return Number.isFinite(value) ? value : 0;
+    };
+    const labels = days.map((day, index) =>
+        typeof day.date === 'string' && day.date ? day.date : `Day ${index + 1}`
+    );
+    const colors = {
+        grid: getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() || '#e2e8f0',
+        text: getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim() || '#64748b'
+    };
+    const money = value => `Rs. ${Number(value).toLocaleString('en', { maximumFractionDigits: 0 })}`;
+
+    new Chart(revenueCanvas, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'POS sales',
+                    data: days.map(day => numericValue(day, 'sales')),
+                    borderColor: '#1d4ed8',
+                    backgroundColor: 'rgba(29, 78, 216, .12)',
+                    fill: true,
+                    tension: .3
+                },
+                {
+                    label: 'Workshop revenue',
+                    data: days.map(day => numericValue(day, 'workshop_revenue')),
+                    borderColor: '#047857',
+                    backgroundColor: 'rgba(4, 120, 87, .12)',
+                    fill: true,
+                    tension: .3
+                },
+                {
+                    label: 'Operating profit',
+                    data: days.map(day => numericValue(day, 'operating_profit')),
+                    borderColor: '#7c3aed',
+                    backgroundColor: 'rgba(124, 58, 237, .10)',
+                    fill: true,
+                    tension: .3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { intersect: false, mode: 'index' },
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: context => `${context.dataset.label}: ${money(context.parsed.y)}` } }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: colors.text, maxTicksLimit: 10 } },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: colors.grid },
+                    ticks: { color: colors.text, callback: money }
+                }
+            }
+        }
+    });
+
+    new Chart(transactionsCanvas, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label: 'POS transactions',
+                data: days.map(day => numericValue(day, 'transactions')),
+                backgroundColor: 'rgba(29, 78, 216, .82)',
+                borderRadius: 5,
+                maxBarThickness: 38
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: colors.text, maxTicksLimit: 10 } },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: colors.grid },
+                    ticks: { color: colors.text, precision: 0 }
+                }
+            }
+        }
+    });
+})();
+</script>
+{% endblock %}

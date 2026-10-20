@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}Invoice Settings | AutoPro ERP{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <div>
+        <h1>Invoice and Receipt Settings</h1>
+        <p>Configure the business details and layout printed on customer invoices.</p>
+    </div>
+</section>
+
+<div class="invoice-settings-layout">
+    <form class="panel settings-form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="panel-heading"><h2>Business details</h2></div>
+        <div class="panel-body">
+            <div class="form-group">
+                <label for="legalTitle">Legal business title</label>
+                <input id="legalTitle" name="legal_title" type="text" maxlength="200" value="{{ profile.legal_title }}" required>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="contactNumbers">Contact numbers</label>
+                    <input id="contactNumbers" name="contact_numbers" type="text" maxlength="200" value="{{ profile.contact_numbers }}" placeholder="Business telephone numbers">
+                </div>
+                <div class="form-group">
+                    <label for="taxId">NTN or tax identification number</label>
+                    <input id="taxId" name="tax_id" type="text" maxlength="80" value="{{ profile.tax_id }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="physicalAddress">Business address</label>
+                <textarea id="physicalAddress" name="physical_address" rows="3">{{ profile.physical_address }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="footerTerms">Invoice footer terms</label>
+                <textarea id="footerTerms" name="footer_terms" rows="3">{{ profile.footer_terms }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="businessLogo">Business logo (PNG, JPEG, or WebP; maximum 2 MB)</label>
+                <input id="businessLogo" name="logo" type="file" accept="image/png,image/jpeg,image/webp">
+                {% if profile.logo %}
+                <label class="logo-remove"><input type="checkbox" name="remove_logo"> Remove the current logo</label>
+                {% endif %}
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="logoPlacement">Logo placement</label>
+                    <select id="logoPlacement" name="logo_placement">
+                        {% for value, label in profile.LOGO_PLACEMENTS %}
+                            <option value="{{ value }}" {% if profile.logo_placement == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="invoiceLayout">Invoice format</label>
+                    <select id="invoiceLayout" name="layout">
+                        {% for value, label in profile.LAYOUTS %}
+                            <option value="{{ value }}" {% if profile.layout == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <button class="btn" type="submit">Save invoice settings</button>
+        </div>
+    </form>
+
+    <section class="panel preview-panel" aria-labelledby="previewHeading">
+        <div class="panel-heading"><h2 id="previewHeading">Live invoice preview</h2></div>
+        <div class="panel-body">
+            <div id="invoicePreview" class="invoice-preview {% if profile.layout == 'A4' %}a4-preview{% else %}receipt-preview{% endif %}">
+                <div id="previewHeader" class="preview-header placement-{{ profile.logo_placement|lower }}">
+                    {% if profile.logo %}
+                        <img id="previewLogo" src="{{ profile.logo.url }}" alt="Business logo">
+                    {% else %}
+                        <div id="previewLogoPlaceholder" class="preview-logo-placeholder">Business logo</div>
+                        <img id="previewLogo" class="hidden" alt="Business logo">
+                    {% endif %}
+                    <h3 id="previewTitle">{{ profile.legal_title }}</h3>
+                    <p id="previewContact">{{ profile.contact_numbers }}</p>
+                    <p id="previewTax">{{ profile.tax_id }}</p>
+                    <p id="previewAddress">{{ profile.physical_address }}</p>
+                </div>
+                <hr>
+                <p><strong>INVOICE</strong> <span class="preview-invoice-number">POS-00000000</span></p>
+                <div class="preview-line"><span>Sample item × 2</span><span>Rs. 2,000.00</span></div>
+                <div class="preview-line"><span>Subtotal</span><span>Rs. 2,000.00</span></div>
+                <div class="preview-line"><span>Discount</span><span>Rs. 0.00</span></div>
+                <div class="preview-line preview-total"><strong>Total</strong><strong>Rs. 2,000.00</strong></div>
+                <p id="previewFooter" class="preview-footer">{{ profile.footer_terms }}</p>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .invoice-settings-layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(300px, .9fr); align-items: start; gap: 18px; }
+    .settings-form, .preview-panel { min-width: 0; }
+    .logo-remove { display: flex !important; align-items: center; gap: 8px; margin-top: 8px; }
+    .logo-remove input { width: auto; }
+    .invoice-preview { width: 100%; margin: 0 auto; padding: 22px; color: #111827; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; font-family: "Segoe UI", Arial, sans-serif; font-size: .82rem; }
+    .receipt-preview { max-width: 320px; }
+    .a4-preview { max-width: 520px; min-height: 520px; padding: 32px; }
+    .preview-header { margin-bottom: 14px; text-align: center; }
+    .preview-header.placement-left { text-align: left; }
+    .preview-header.placement-right { text-align: right; }
+    .preview-header img { display: block; max-width: 105px; max-height: 58px; object-fit: contain; margin: 0 auto 8px; }
+    .preview-header.placement-left img { margin-left: 0; }
+    .preview-header.placement-right img { margin-right: 0; }
+    .preview-header h3 { margin: 0 0 4px; font-size: 1.1rem; }
+    .preview-header p { margin: 2px 0; white-space: pre-line; }
+    .preview-logo-placeholder { display: inline-grid; width: 84px; height: 44px; margin-bottom: 8px; place-items: center; color: #64748b; background: #f1f5f9; border: 1px dashed #94a3b8; }
+    .invoice-preview hr { border: 0; border-top: 1px dashed #94a3b8; }
+    .preview-line { display: flex; justify-content: space-between; gap: 12px; margin: 7px 0; }
+    .preview-total { padding-top: 8px; border-top: 1px solid #cbd5e1; }
+    .preview-footer { margin-top: 22px; text-align: center; white-space: pre-line; }
+    .hidden { display: none !important; }
+    @media (max-width: 950px) { .invoice-settings-layout { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(() => {
+    const title = document.getElementById('legalTitle');
+    const contact = document.getElementById('contactNumbers');
+    const tax = document.getElementById('taxId');
+    const address = document.getElementById('physicalAddress');
+    const footer = document.getElementById('footerTerms');
+    const logo = document.getElementById('businessLogo');
+    const previewImage = document.getElementById('previewLogo');
+    const placeholder = document.getElementById('previewLogoPlaceholder');
+    const header = document.getElementById('previewHeader');
+    const preview = document.getElementById('invoicePreview');
+    const bindText = (input, target) => input.addEventListener('input', () => { document.getElementById(target).textContent = input.value; });
+    bindText(title, 'previewTitle');
+    bindText(contact, 'previewContact');
+    bindText(tax, 'previewTax');
+    bindText(address, 'previewAddress');
+    bindText(footer, 'previewFooter');
+    document.getElementById('logoPlacement').addEventListener('change', event => {
+        header.classList.remove('placement-left', 'placement-center', 'placement-right');
+        header.classList.add(`placement-${event.target.value.toLowerCase()}`);
+    });
+    document.getElementById('invoiceLayout').addEventListener('change', event => {
+        preview.classList.toggle('a4-preview', event.target.value === 'A4');
+        preview.classList.toggle('receipt-preview', event.target.value === 'RECEIPT');
+    });
+    logo.addEventListener('change', () => {
+        const file = logo.files[0];
+        if (!file) return;
+        if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 2 * 1024 * 1024) {
+            logo.value = '';
+            return;
+        }
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+            previewImage.src = reader.result;
+            previewImage.classList.remove('hidden');
+            if (placeholder) placeholder.classList.add('hidden');
+        });
+        reader.readAsDataURL(file);
+    });
+})();
+</script>
+{% endblock %}

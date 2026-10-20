@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Ledger Account | AutoPro ERP{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <div>
+        <h1>Create ledger account</h1>
+        <p>Register a customer, supplier, bank, or cash account.</p>
+    </div>
+</section>
+
+<section class="panel account-form-panel">
+    <div class="panel-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="accountName">Account name</label>
+                <input id="accountName" type="text" name="account_name" maxlength="150" required>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="accountType">Account type</label>
+                    <select id="accountType" name="account_type" required>
+                        <option value="CUSTOMER">Customer receivable</option>
+                        <option value="SUPPLIER">Supplier payable</option>
+                        <option value="BANK">Bank account</option>
+                        <option value="CASH">Cash account</option>
+                        <option value="EXPENSE">Operating expense account</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="contactPhone">Contact phone</label>
+                    <input id="contactPhone" type="text" name="contact_phone" maxlength="25" autocomplete="tel">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="openingBalance">Opening balance (Rs.)</label>
+                <input id="openingBalance" type="number" step="0.01" name="opening_balance" value="0.00" required>
+                <small class="muted">A positive amount is a debit balance; a negative amount is a credit balance.</small>
+            </div>
+            <button class="btn" type="submit">Save account</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

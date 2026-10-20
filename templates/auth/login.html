@@ -1,0 +1,206 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <title>Sign in | AutoPro ERP</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <script>
+        try {
+            const savedTheme = localStorage.getItem('autopro-theme');
+            document.documentElement.dataset.theme = savedTheme === 'dark' ? 'dark' : 'light';
+        } catch (error) {
+            document.documentElement.dataset.theme = 'light';
+        }
+    </script>
+    <style>
+        body { min-height: 100vh; background: #fff; }
+        .auth-layout { display: grid; min-height: 100vh; grid-template-columns: 1fr 1fr; }
+        .auth-brand {
+            display: flex; flex-direction: column; justify-content: center; padding: clamp(32px, 7vw, 96px);
+            color: #fff; background: linear-gradient(145deg, #1e40af, #1d4ed8 55%, #047857);
+        }
+        .auth-brand .brand-mark { width: 42px; height: 42px; margin: 0 0 22px; color: #1d4ed8; background: #fff; font-size: 1.1rem; }
+        .auth-brand h1 { max-width: 630px; margin: 0 0 12px; font-size: clamp(2rem, 4vw, 3.3rem); line-height: 1.08; }
+        .auth-tagline { max-width: 580px; margin: 0; color: rgba(255,255,255,.85); font-size: 1.08rem; }
+        .feature-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 34px; }
+        .feature-card { padding: 15px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2); border-radius: 11px; }
+        .feature-card strong { display: block; margin-bottom: 3px; }
+        .feature-card span { color: rgba(255,255,255,.78); font-size: .83rem; }
+        .auth-form-side { display: grid; padding: 36px; place-items: center; background: #fff; }
+        .auth-form { width: min(100%, 680px); }
+        .auth-form h2 { margin: 0 0 6px; color: #0f172a; font-size: 1.9rem; }
+        .auth-form > p { margin: 0 0 28px; color: #64748b; }
+        .auth-form .form-group { margin-bottom: 18px; }
+        .auth-form label { color: #334155; }
+        .auth-form input { min-height: 48px; }
+        .auth-submit { width: 100%; min-height: 48px; margin-top: 6px; }
+        .auth-error { margin-bottom: 18px; padding: 11px 13px; color: #991b1b; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; }
+        .auth-footer { margin-top: 26px; color: #64748b; font-size: .8rem; text-align: center; }
+        .demo-access-panel {
+            margin-top: 24px;
+            padding: 18px;
+            background: rgba(241, 245, 249, .6);
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+        }
+        .demo-access-heading { margin: 0 0 4px; color: #0f172a; font-size: 1rem; font-weight: 750; }
+        .demo-access-description { margin: 0 0 14px; color: #64748b; font-size: .82rem; }
+        .demo-persona-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+        .demo-persona {
+            display: flex;
+            min-width: 0;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 14px;
+            color: #0f172a;
+            text-align: left;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+        }
+        .demo-persona:hover { transform: translateY(-2px); border-color: #93c5fd; }
+        .demo-persona.is-selected,
+        .demo-persona:focus-visible { outline: 3px solid rgba(29, 78, 216, .2); border-color: #1d4ed8; }
+        .demo-role-badge {
+            display: inline-flex;
+            margin-bottom: 10px;
+            padding: 4px 8px;
+            color: #1d4ed8;
+            background: #eff6ff;
+            border-radius: 999px;
+            font-size: .69rem;
+            font-weight: 750;
+            line-height: 1.3;
+        }
+        .demo-persona strong { margin-bottom: 3px; font-size: .88rem; }
+        .demo-persona-description { min-height: 36px; color: #64748b; font-size: .75rem; line-height: 1.4; }
+        .demo-persona-action { margin-top: 12px; color: #1d4ed8; font-size: .78rem; font-weight: 750; }
+        .demo-access-note { margin: 12px 0 0; color: #64748b; font-size: .72rem; line-height: 1.45; }
+        html[data-theme="dark"] .demo-access-panel { background: rgba(30, 41, 59, .78); border-color: #334155; }
+        html[data-theme="dark"] .demo-access-heading,
+        html[data-theme="dark"] .demo-persona { color: #f8fafc; }
+        html[data-theme="dark"] .demo-access-description,
+        html[data-theme="dark"] .demo-persona-description,
+        html[data-theme="dark"] .demo-access-note { color: #cbd5e1; }
+        html[data-theme="dark"] .demo-persona { background: #0f172a; border-color: #334155; }
+        html[data-theme="dark"] .demo-role-badge { color: #bfdbfe; background: #1e3a8a; }
+        html[data-theme="dark"] .demo-persona-action { color: #93c5fd; }
+        @media (max-width: 760px) {
+            .auth-layout { grid-template-columns: 1fr; }
+            .auth-brand { padding: 32px 24px; }
+            .auth-brand h1 { font-size: 2rem; }
+            .auth-tagline { font-size: .95rem; }
+            .feature-grid { gap: 8px; margin-top: 22px; }
+            .feature-card { padding: 11px; }
+            .auth-form-side { padding: 38px 22px; }
+            .demo-persona-grid { grid-template-columns: 1fr; }
+            .demo-persona { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; }
+            .demo-role-badge { grid-column: 1 / -1; justify-self: start; }
+            .demo-persona strong, .demo-persona-description { grid-column: 1; }
+            .demo-persona-description { min-height: 0; }
+            .demo-persona-action { grid-column: 2; grid-row: 2 / span 2; align-self: center; margin-top: 0; }
+        }
+        @media (max-width: 380px) { .feature-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <main class="auth-layout">
+        <section class="auth-brand" aria-label="AutoPro ERP product information">
+            <span class="brand-mark" aria-hidden="true">A</span>
+            <h1>AutoPro ERP</h1>
+            <p class="auth-tagline">All-in-One Auto Workshop, Spare Parts POS and Showroom Management Suite.</p>
+            <div class="feature-grid">
+                <div class="feature-card"><strong>Spare Parts Inventory</strong><span>Stock, pricing and reorder visibility.</span></div>
+                <div class="feature-card"><strong>Job Card Lifecycle</strong><span>Workshop jobs from check-in to delivery.</span></div>
+                <div class="feature-card"><strong>Double-Entry Ledgers</strong><span>Clear customer and supplier account activity.</span></div>
+                <div class="feature-card"><strong>Fast POS</strong><span>Efficient counter billing and receipts.</span></div>
+            </div>
+        </section>
+        <section class="auth-form-side">
+            <div class="auth-form">
+                <h2>Welcome back</h2>
+                <p>Sign in to manage your business operations.</p>
+                {% if messages %}
+                    {% for message in messages %}<div class="auth-error" role="alert">{{ message }}</div>{% endfor %}
+                {% endif %}
+                <form id="loginForm" method="post" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ next }}">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input id="username" type="text" name="username" autocomplete="username" required autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input id="password" type="password" name="password" autocomplete="current-password" required>
+                    </div>
+                    <button class="btn auth-submit" type="submit">Sign in securely</button>
+                </form>
+                <section class="demo-access-panel" aria-labelledby="demoAccessHeading">
+                    <h3 class="demo-access-heading" id="demoAccessHeading">Demo / Recruiter Quick Access</h3>
+                    <p class="demo-access-description">Select a role to sign in and explore the corresponding ERP workflows.</p>
+                    <div class="demo-persona-grid">
+                        <button class="demo-persona" type="button" data-demo-username="admin" aria-pressed="false">
+                            <span class="demo-role-badge">Super Admin</span>
+                            <strong>System Admin / Owner</strong>
+                            <span class="demo-persona-description">Full ERP privileges across business operations.</span>
+                            <span class="demo-persona-action">Fill &amp; Sign In</span>
+                        </button>
+                        <button class="demo-persona" type="button" data-demo-username="mechanic" aria-pressed="false">
+                            <span class="demo-role-badge">Workshop Technician</span>
+                            <strong>Workshop Technician</strong>
+                            <span class="demo-persona-description">Vehicle inspections and job card workflows.</span>
+                            <span class="demo-persona-action">Fill &amp; Sign In</span>
+                        </button>
+                        <button class="demo-persona" type="button" data-demo-username="cashier" aria-pressed="false">
+                            <span class="demo-role-badge">POS Cashier</span>
+                            <strong>POS Cashier</strong>
+                            <span class="demo-persona-description">Retail spare parts billing and terminal checkout.</span>
+                            <span class="demo-persona-action">Fill &amp; Sign In</span>
+                        </button>
+                    </div>
+                    <p class="demo-access-note">Disposable portfolio accounts only. Remove or replace these credentials before deploying this site to production.</p>
+                </section>
+                <div class="auth-footer">Authorised personnel only. Contact your system administrator for account access.</div>
+            </div>
+        </section>
+    </main>
+    <script>
+        (() => {
+            const form = document.getElementById('loginForm');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const personaButtons = document.querySelectorAll('.demo-persona');
+            const demoPassword = 'admin123';
+
+            form.addEventListener('submit', () => {
+                const csrfCookie = document.cookie
+                    .split('; ')
+                    .find(cookie => cookie.startsWith('csrftoken='));
+                const csrfInput = form.querySelector('input[name="csrfmiddlewaretoken"]');
+                if (csrfCookie && csrfInput) {
+                    csrfInput.value = decodeURIComponent(csrfCookie.slice('csrftoken='.length));
+                }
+            });
+
+            personaButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    usernameInput.value = button.dataset.demoUsername;
+                    passwordInput.value = demoPassword;
+                    personaButtons.forEach(persona => {
+                        const selected = persona === button;
+                        persona.classList.toggle('is-selected', selected);
+                        persona.setAttribute('aria-pressed', String(selected));
+                    });
+                    form.requestSubmit();
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

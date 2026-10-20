@@ -1,0 +1,16 @@
+<header class="navbar">
+    <div class="navbar-start">
+        <button class="nav-action menu-toggle" id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+        <span class="navbar-caption">Auto Repair, Spare Parts and Showroom Management</span>
+    </div>
+    <div class="navbar-actions">
+        <button class="nav-action" id="themeToggle" type="button" aria-label="Toggle light or dark theme">
+            {% if request.COOKIES.theme == 'dark' %}☀ Light{% else %}☾ Dark{% endif %}
+        </button>
+        <span class="navbar-user">{{ request.user.get_full_name|default:request.user.username|default:"Administrator" }}</span>
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button class="nav-action" type="submit">Sign out</button>
+        </form>
+    </div>
+</header>

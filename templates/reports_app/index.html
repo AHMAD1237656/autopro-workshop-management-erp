@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports and Analytics | AutoPro ERP{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <div>
+        <h1>Reports and Analytics</h1>
+        <p>Review revenue performance, technician productivity, and inventory valuation.</p>
+        <p class="muted report-timestamp">Generated {{ generated_at|date:"d M Y, H:i T" }}</p>
+    </div>
+    <div class="report-actions">
+        {% if selected_tab == 'revenue' %}
+            <a class="btn btn-secondary" href="?export=sales">Download daily POS sales CSV</a>
+        {% elif selected_tab == 'technicians' %}
+            <a class="btn btn-secondary" href="?export=technicians">Download technician report CSV</a>
+        {% else %}
+            <a class="btn btn-secondary" href="?export=inventory">Download stock valuation CSV</a>
+        {% endif %}
+        <button class="btn btn-secondary" type="button" onclick="window.print()">Print or save as PDF</button>
+    </div>
+</section>
+
+<nav class="report-tabs" aria-label="Report categories">
+    <a href="?tab=revenue" class="{% if selected_tab == 'revenue' %}active{% endif %}">Sales and Revenue</a>
+    <a href="?tab=technicians" class="{% if selected_tab == 'technicians' %}active{% endif %}">Technician Performance</a>
+    <a href="?tab=inventory" class="{% if selected_tab == 'inventory' %}active{% endif %}">Inventory Valuation</a>
+</nav>
+
+{% if selected_tab == 'revenue' %}
+<section class="stat-grid" aria-label="Sales and revenue summary">
+    <article class="stat-card">
+        <div class="stat-label">POS Sales Revenue</div>
+        <div class="stat-value">Rs. {{ pos_revenue|floatformat:2 }}</div>
+        <div class="muted">{{ pos_transaction_count }} transactions</div>
+    </article>
+    <article class="stat-card">
+        <div class="stat-label">Workshop Revenue</div>
+        <div class="stat-value">Rs. {{ workshop_revenue|floatformat:2 }}</div>
+        <div class="muted">{{ workshop_job_count }} completed or delivered jobs</div>
+    </article>
+    <article class="stat-card">
+        <div class="stat-label">Combined Revenue</div>
+        <div class="stat-value">Rs. {{ total_revenue|floatformat:2 }}</div>
+        <div class="muted">All recorded POS sales and completed workshop jobs</div>
+    </article>
+</section>
+<section class="panel">
+    <div class="panel-heading"><h2>Revenue Breakdown</h2></div>
+    <div class="table-responsive">
+        <table>
+            <thead><tr><th>Revenue Stream</th><th>Transactions or Jobs</th><th>Amount</th><th>Share of Revenue</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>POS sales</td>
+                    <td>{{ pos_transaction_count }}</td>
+                    <td>Rs. {{ pos_revenue|floatformat:2 }}</td>
+                    <td><span class="badge badge-success">{{ pos_revenue_share|floatformat:1 }}%</span></td>
+                </tr>
+                <tr>
+                    <td>Workshop labor</td>
+                    <td>{{ workshop_job_count }}</td>
+                    <td>Rs. {{ workshop_labor_revenue|floatformat:2 }}</td>
+                    <td><span class="badge badge-success">{{ labor_revenue_share|floatformat:1 }}%</span></td>
+                </tr>
+                <tr>
+                    <td>Workshop parts</td>
+                    <td>{{ workshop_job_count }}</td>
+                    <td>Rs. {{ workshop_parts_revenue|floatformat:2 }}</td>
+                    <td><span class="badge badge-success">{{ parts_revenue_share|floatformat:1 }}%</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="table-note">Workshop revenue includes labor and parts charges for completed or delivered job cards. Values are cumulative.</div>
+</section>
+{% elif selected_tab == 'technicians' %}
+<section class="stat-grid" aria-label="Technician performance summary">
+    <article class="stat-card">
+        <div class="stat-label">Completed Workshop Jobs</div>
+        <div class="stat-value">{{ completed_job_count }}</div>
+        <div class="muted">Completed or delivered jobs assigned to a technician</div>
+    </article>
+    <article class="stat-card">
+        <div class="stat-label">Workshop Labor Revenue</div>
+        <div class="stat-value">Rs. {{ total_labor_revenue|floatformat:2 }}</div>
+        <div class="muted">Labor charges from completed or delivered jobs</div>
+    </article>
+</section>
+<section class="panel">
+    <div class="panel-heading"><h2>Mechanic Technician Performance</h2></div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr><th>Technician</th><th>Completed Jobs</th><th>Job Share</th><th>Labor Revenue</th><th>Revenue Share</th></tr>
+            </thead>
+            <tbody>
+                {% for technician in technicians %}
+                <tr>
+                    <td><strong>{{ technician.name }}</strong></td>
+                    <td>{{ technician.completed_jobs }}</td>
+                    <td><span class="badge badge-success">{{ technician.job_share|floatformat:1 }}%</span></td>
+                    <td>Rs. {{ technician.labor_revenue|floatformat:2 }}</td>
+                    <td><span class="badge badge-success">{{ technician.labor_share|floatformat:1 }}%</span></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="empty-state">No completed workshop jobs are currently assigned to technicians.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% else %}
+<section class="stat-grid" aria-label="Inventory valuation summary">
+    <article class="stat-card">
+        <div class="stat-label">Units in Stock</div>
+        <div class="stat-value">{{ total_units }}</div>
+        <div class="muted">Across all registered spare parts</div>
+    </article>
+    <article class="stat-card">
+        <div class="stat-label">Stock Asset Value at Cost</div>
+        <div class="stat-value">Rs. {{ cost_value|floatformat:2 }}</div>
+        <div class="muted">Current quantity multiplied by cost price</div>
+    </article>
+    <article class="stat-card">
+        <div class="stat-label">Potential Retail Value</div>
+        <div class="stat-value">Rs. {{ selling_value|floatformat:2 }}</div>
+        <div class="muted">Current quantity multiplied by selling price</div>
+    </article>
+    <article class="stat-card">
+        <div class="stat-label">Potential Markup</div>
+        <div class="stat-value">Rs. {{ stock_difference|floatformat:2 }}</div>
+        <div><span class="badge badge-success">{{ markup_percentage|floatformat:1 }}% over cost</span></div>
+    </article>
+</section>
+<section class="panel">
+    <div class="panel-heading"><h2>Low Stock Items</h2></div>
+    <div class="table-responsive">
+        <table>
+            <thead><tr><th>Part</th><th>Part Number</th><th>Category</th><th>Available Stock</th><th>Reorder Threshold</th><th>Status</th></tr></thead>
+            <tbody>
+                {% for part in low_stock_parts %}
+                <tr>
+                    <td><strong>{{ part.name }}</strong></td>
+                    <td>{{ part.part_number }}</td>
+                    <td>{{ part.category.name }}</td>
+                    <td>{{ part.stock_quantity }}</td>
+                    <td>{{ part.min_stock_alert }}</td>
+                    <td><span class="badge badge-danger">Reorder required</span></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="empty-state">No spare parts are at or below their reorder threshold.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    @media print {
+        .sidebar, .navbar, .report-tabs, .report-actions { display: none !important; }
+        .erp-wrapper, .main-content { display: block; }
+        .content-body { max-width: none; padding: 0; }
+        .panel, .stat-card { break-inside: avoid; box-shadow: none; }
+        body { color: #111827; background: #fff; }
+    }
+    @media (max-width: 760px) { .report-actions { width: 100%; } .report-actions .btn { flex: 1; } }
+</style>
+{% endblock %}
